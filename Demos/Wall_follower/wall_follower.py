@@ -54,39 +54,37 @@ class WallFollower:
         while True:
             if cur_cell == self.goal:
                 break
-            if m.maze_map[cur_cell][self.direction['left']] == 0:
-                if m.maze_map[cur_cell][self.direction['forward']] == 0:
+            if self.parentMaze.maze_map[cur_cell][self.direction['left']] == 0:
+                if self.parentMaze.maze_map[cur_cell][self.direction['forward']] == 0:
                     self.RCW()
                 else:
-                    self.parentMaze.single_cell(cur_cell)
+                    self.parentMaze.head_cell(cur_cell)
                     time.sleep(delay)
                     cur_cell, d = self.moveForward(cur_cell)
                     path += d
             else:
                 self.RCCW()
-                self.parentMaze.single_cell(cur_cell)
+                self.parentMaze.head_cell(cur_cell)
                 time.sleep(delay)
                 cur_cell, d = self.moveForward(cur_cell)
                 path += d
 
-        path2 = path
-        while 'UD' in path2 or 'DU' in path2 or 'RL' in path2 or 'LR' in path2:
-            path2 = path2.replace('DU', '')
-            path2 = path2.replace('UD', '')
-            path2 = path2.replace('RL', '')
-            path2 = path2.replace('LR', '')
-        return path, path2
+        while 'UD' in path or 'DU' in path or 'RL' in path or 'LR' in path:
+            path = path.replace('DU', '')
+            path = path.replace('UD', '')
+            path = path.replace('RL', '')
+            path = path.replace('LR', '')
+        return path
 
 
 if __name__ == '__main__':
     m = Maze((10, 10), 50, 50, 20)
-    m.CreateRawMaze()
-    m.DrawMaze()
+    m.create_maze()
+    m.show_maze_map()
 
     mouse = WallFollower()
-    path, path2 = mouse.wall_follower(parent_maze=m, start=m.start, goal=m.end, delay=0)
-    # print(path2)
-    m.trade_path_direction(path2, m.start, delay=0)
+    path = mouse.wall_follower(parent_maze=m, start=m.start, goal=m.end, delay=0)
+    m.show_path_directions(path, m.start, delay=0)
 
     # ##### pygame loop #######
     clock = pygame.time.Clock()

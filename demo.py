@@ -1,22 +1,25 @@
-from maze_generator import *
+import pygame
 
+from maze_generator import Maze
+from Demos.BFS.BFS import BFS
+from Demos.DFS.DFS import DFS
+from Demos.Wall_follower.wall_follower import WallFollower
 
 if __name__ == "__main__":
-    m = Maze(xstart=10, ystart=10, rows=25, cols=25, cell_width=20)
-    m.build_raw_grid()
-    m.CreateRawMaze()
-    # print('Maze map')
-    # for cell in m.maze_map.keys():
-    #     print('{}:{}'.format(cell, m.maze_map[cell]))
+    m = Maze(start=(10,10), rows=25, cols=25, cell_width=20)
+    m.create_maze()
+    # m.visualize_create_maze()
+    
+    # mouse = BFS()
+    # path = mouse.bfs(parent_maze=m, start=m.start, goal=m.end, delay=0.1)
 
-    # print('Path')
-    # for cell in m.path.keys():
-    #     print('{}:{}'.format(cell, m.path[cell]))
+    # mouse = DFS()
+    # path = mouse.dfs(parent_maze=m, start=m.start, goal=m.end, delay=0.1)
+    # m.show_path_coordinates(path, m.start, m.end, delay=0.01)
 
-    m.DrawMaze()
-    # m.CreateMaze()
-    m.plot_route_back(90, 90)
-
+    mouse = WallFollower()
+    path = mouse.wall_follower(parent_maze=m, start=m.start, goal=m.end, delay=0.1)
+    m.show_path_directions(path, m.start, delay=0.01)
 
     # ##### pygame loop #######
     clock = pygame.time.Clock()

@@ -39,30 +39,26 @@ class DFS:
                 if self.parentMaze.maze_map[cur_cell][d] == 1:
                     if d == 'U':
                         child_cell = (cur_cell[0], cur_cell[1] - self.parentMaze.cell_width)
-                        self.parentMaze.single_cell(child_cell)
+                        self.parentMaze.head_cell(child_cell)
                         time.sleep(delay)
-                        self.parentMaze.backtracking_cell(child_cell)
                         self.parentMaze.push_up(cur_cell)
                     elif d == 'D':
                         child_cell = (cur_cell[0], cur_cell[1] + self.parentMaze.cell_width)
-                        self.parentMaze.single_cell(child_cell)
+                        self.parentMaze.head_cell(child_cell)
                         time.sleep(delay)
-                        self.parentMaze.backtracking_cell(child_cell)
                         self.parentMaze.push_down(cur_cell)
                     elif d == 'L':
                         child_cell = (cur_cell[0] - self.parentMaze.cell_width, cur_cell[1])
-                        self.parentMaze.single_cell(child_cell)
+                        self.parentMaze.head_cell(child_cell)
                         time.sleep(delay)
-                        self.parentMaze.backtracking_cell(child_cell)
                         self.parentMaze.push_left(cur_cell)
                     elif d == 'R':
                         child_cell = (cur_cell[0] + self.parentMaze.cell_width, cur_cell[1])
-                        self.parentMaze.single_cell(child_cell)
+                        self.parentMaze.head_cell(child_cell)
                         time.sleep(delay)
-                        self.parentMaze.backtracking_cell(child_cell)
                         self.parentMaze.push_right(cur_cell)
+
                     if child_cell in visited:
-                        self.parentMaze.backtracking_cell(self.check_dead_end(child_cell, d))
                         continue
                     visited.append(child_cell)
                     frontier.append(child_cell)
@@ -75,14 +71,13 @@ class DFS:
         return fwdPath
 
 if __name__ == '__main__':
-    m = Maze((0, 0), 20, 20, 40)
-    m.CreateRawMaze()
-    m.DrawMaze()
+    m = Maze(start=(10,10), rows=25, cols=25, cell_width=20)
+    m.create_maze()
+    m.show_maze_map()
 
     mouse = DFS()
     path = mouse.dfs(parent_maze=m, start=m.start, goal=m.end, delay=0.05)
-    # print(path2)
-    m.trade_path_point(path, m.start, m.end, delay=0.05)
+    m.show_path_coordinates(path, m.start, m.end, delay=0.05)
 
     # ##### pygame loop #######
     clock = pygame.time.Clock()

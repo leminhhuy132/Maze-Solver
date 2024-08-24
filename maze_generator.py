@@ -4,10 +4,10 @@ import random
 from enum import Enum
 
 
-class Color(Enum):
+class Color:
     WHITE = (255, 255, 255)
-    GREEN = (0, 255, 0,)
-    BLUE = (0, 0, 255)
+    GREEN = (100, 255, 0)
+    BLUE = (0, 150, 255)
     YELLOW = (255, 255, 0)
     BLACK = (0, 0, 0)
 
@@ -15,35 +15,22 @@ class Color(Enum):
 class Maze:
     '''This is the main class to create maze.'''
     def __init__(self, start=(0, 0), rows=10, cols=10, cell_width=20):
-        '''
-        rows--> No. of rows of the maze
-        cols--> No. of columns of the maze
-        Need to pass just the two arguments. The rest will be assigned automatically
-        maze_map--> Will be set to a Dicationary. Keys will be cells and
-                    values will be another dictionary with keys=['E','W','N','S'] for
-                    East West North South and values will be 0 or 1. 0 means that
-                    direction(EWNS) is blocked. 1 means that direction is open.
-        grid--> A list of all cells
-        path--> Shortest path from start(bottom right) to goal(by default top left)
-                It will be a dictionary
-        _win,cell_width,_canvas -->    _win and )canvas are for Tkinter window and canvas
-                                        cell_width is cell width calculated automatically
-        _agents-->  A list of aganets on the maze
-        markedCells-->  Will be used to mark some particular cell during
-                        path trace by the agent.
-        _
-        '''
+        """
+
+        Args:
+            start (tuple, optional): _description_. Defaults to (0, 0).
+            rows (int, optional): number of rows in the maze. Defaults to 10.
+            cols (int, optional): number of columns in the maze. Defaults to 10.
+            cell_width (int, optional): width of cell in maze. Defaults to 20.
+        """
         self.start = start
         self.h_maze = rows
         self.w_maze = cols
         self.maze_map = {}
-        self.grid = []
-        self.path = {}
+        self.grid = [] # A list of all cells
+        self.path = {} # Shortest path from start(bottom right) to goal(by default top left)
         self.cell_width = cell_width
-        self._agents = []
         self._canvas = None
-        self.markCells = []
-        self._LabWidth = 26
         self.end = ((self.w_maze-1)*self.cell_width + self.start[0], (self.h_maze-1)*self.cell_width + self.start[1])
 
         # Define Screen
@@ -93,12 +80,12 @@ class Maze:
         pygame.draw.rect(self.screen, Color.BLUE, (cur_cell[0] + 1, cur_cell[1] + 1, 2 * self.cell_width - 1, self.cell_width - 1), 0)
         pygame.display.update()
 
-    def single_cell(self, cur_cell):
+    def head_cell(self, cur_cell):
         pygame.draw.rect(self.screen, Color.GREEN, (cur_cell[0] + 1, cur_cell[1] + 1, self.cell_width - 2, self.cell_width - 2), 0)  # draw a single width cell
         pygame.display.update()
 
-    def backtracking_cell(self, cur_cell):
-        pygame.draw.rect(self.screen, Color.BLUE, (cur_cell[0] + 1, cur_cell[1] + 1, self.cell_width - 2, self.cell_width - 2), 0)  # used to re-colour the path after single_cell
+    def refill_head_cell(self, cur_cell):
+        pygame.draw.rect(self.screen, Color.BLUE, (cur_cell[0] + 1, cur_cell[1] + 1, self.cell_width - 2, self.cell_width - 2), 0)  # used to re-colour the path after head_cell
         pygame.display.update()  # has visited cell
 
     def path_cell(self, cur_cell):
@@ -127,16 +114,19 @@ class Maze:
         if y + self.cell_width <= h_endMaze:
             self.maze_map[x, y + self.cell_width]['U'] = 1
 
-    def CreateMaze(self):
+    def visualize_create_maze(self, delay=0.01):
+        self.build_raw_grid()
+        self.show_maze_map() # draw grid
+
         visited = []
         stack = []
         x = self.start[0]
         y = self.start[1]
-        self.single_cell((x, y))  # starting positing of maze
+        self.head_cell((x, y))  # starting positing of maze
         stack.append((x, y))  # place starting cell into stack
         visited.append((x, y))  # add starting cell to visited list
         while len(stack) > 0:  # loop until stack is empty
-            time.sleep(.07)  # slow program now a bit
+            time.sleep(delay)  # slow program now a bit
             cell = []  # define cell list
             if (x + self.cell_width, y) not in visited and (x + self.cell_width, y) in self.grid:  # right cell available?
                 cell.append("right")  # if yes add to cell list
@@ -182,12 +172,10 @@ class Maze:
                     stack.append((x, y))
             else:
                 x, y = stack.pop()  # if no cells are available pop one from the stack
-                self.single_cell((x, y))  # use single_cell function to show backtracking image
-                time.sleep(.05)  # slow program down a bit
-                self.backtracking_cell((x, y))  # change colour to green to identify backtracking path
 
-    def CreateRawMaze(self):
+    def create_maze(self):
         self.build_raw_grid()
+
         visited = []
         stack = []
         x = self.start[0]
@@ -196,42 +184,41 @@ class Maze:
         stack.append((x, y))  # place starting cell into stack
         visited.append((x, y))  # add starting cell to visited list
         while len(stack) > 0:  # loop until stack is empty
-            # time.sleep(.07)  # slow program now a bit
             cell = []  # define cell list
             if (x + self.cell_width, y) not in visited and (x + self.cell_width, y) in self.grid:
-                cell.append("right")
+                cell.append("R")
             if (x - self.cell_width, y) not in visited and (x - self.cell_width, y) in self.grid:
-                cell.append("left")
+                cell.append("L")
             if (x, y + self.cell_width) not in visited and (x, y + self.cell_width) in self.grid:
-                cell.append("down")
+                cell.append("D")
             if (x, y - self.cell_width) not in visited and (x, y - self.cell_width) in self.grid:
-                cell.append("up")
+                cell.append("U")
 
             if len(cell) > 0:  # check to see if cell list is empty
                 cell_chosen = (random.choice(cell))  # select one of the cell randomly
 
-                if cell_chosen == "right":  # if this cell has been chosen
+                if cell_chosen == "R":  # if this cell has been chosen
                     self.open_right(x, y)
                     self.path[(x + self.cell_width, y)] = x, y
                     x = x + self.cell_width
                     visited.append((x, y))
                     stack.append((x, y))
 
-                elif cell_chosen == "left":
+                elif cell_chosen == "L":
                     self.open_left(x, y)
                     self.path[(x - self.cell_width, y)] = x, y
                     x = x - self.cell_width
                     visited.append((x, y))
                     stack.append((x, y))
 
-                elif cell_chosen == "down":
+                elif cell_chosen == "D":
                     self.open_down(x, y)
                     self.path[(x, y + self.cell_width)] = x, y
                     y = y + self.cell_width
                     visited.append((x, y))
                     stack.append((x, y))
 
-                elif cell_chosen == "up":
+                elif cell_chosen == "U":
                     self.open_up(x, y)
                     self.path[(x, y - self.cell_width)] = x, y
                     y = y - self.cell_width
@@ -239,8 +226,9 @@ class Maze:
                     stack.append((x, y))
             else:
                 x, y = stack.pop()  # if no cells are available pop one from the stack
+        self.show_maze_map()
 
-    def DrawMaze(self):
+    def show_maze_map(self):
         if self.grid is not None:
             for cell in self.grid:
                 x, y = cell
@@ -256,14 +244,19 @@ class Maze:
                     pygame.draw.line(self.screen, Color.BLACK, [x+w, y], [x+w, y+w])
         pygame.display.update()
 
-    def plot_route_back(self, xe, ye):
-        self.path_cell((xe, ye))  # solution list contains all the coordinates to route back to start
-        while (xe, ye) != self.start:  # loop until cell position == start position
-            xe, ye = self.path[xe, ye]  # "key value" now becomes the new key
-            self.path_cell((xe, ye))  # animate route back
-            time.sleep(.1)
+    def plot_route_back(self, end, delay=0.01):
+        x = end[0]
+        y = end[1]
+        self.path_cell(end) 
+        while (x, y) != self.start:
+            x, y = self.path[x, y] 
+            self.path_cell((x, y))
+            time.sleep(delay)
 
-    def trade_path_direction(self, path, start, delay=0.01):
+    def show_path_directions(self, path, start, delay=0.01):
+        """Shows the path found in maze
+        path = [step_1_direction, step_2_direction]
+        """
         x = start[0]
         y = start[1]
         self.path_cell(start)
@@ -282,30 +275,24 @@ class Maze:
                 self.path_cell((x, y))
             time.sleep(delay)
 
-    def trade_path_point(self, path, start, end, delay=0.01):
+    def show_path_coordinates(self, path, start, end, delay=0.01):
+        """Shows the path found in maze
+        path = {cur_coordinate:next_coordinate}
+        """
         x = start[0]
         y = start[1]
         self.path_cell(start)  # solution list contains all the coordinates to route back to start
-        while (x, y) != end:  # loop until cell position == start position
+        while (x, y) != end:  # loop until cell position == start position4
             x, y = path[x, y]  # "key value" now becomes the new key
             self.path_cell((x, y))  # animate route back
-            time.sleep(delay)
+            time.sleep(0.1)
 
 
 if __name__ == "__main__":
     m = Maze(start=(10, 10), rows=25, cols=25, cell_width=20)
-    m.CreateRawMaze()
-    # print('Maze map')
-    # for cell in m.maze_map.keys():
-    #     print('{}:{}'.format(cell, m.maze_map[cell]))
-
-    # print('Path')
-    # for cell in m.path.keys():
-    #     print('{}:{}'.format(cell, m.path[cell]))
-
-    m.DrawMaze()
-    # m.CreateMaze()
-    m.plot_route_back(90, 90)
+    # m.create_maze()
+    m.visualize_create_maze(delay=0.5)
+    m.plot_route_back(m.end)
 
     # ##### pygame loop #######
     clock = pygame.time.Clock()

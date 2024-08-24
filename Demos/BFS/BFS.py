@@ -23,24 +23,24 @@ class BFS:
 
     def visited_point(self, cur_cell, child_cell, d, delay):
         if d == 'U':
-            self.parentMaze.single_cell(child_cell)
+            self.parentMaze.head_cell(child_cell)
             time.sleep(delay)
-            self.parentMaze.backtracking_cell(child_cell)
+            
             self.parentMaze.push_up(cur_cell)
         elif d == 'D':
-            self.parentMaze.single_cell(child_cell)
+            self.parentMaze.head_cell(child_cell)
             time.sleep(delay)
-            self.parentMaze.backtracking_cell(child_cell)
+            
             self.parentMaze.push_down(cur_cell)
         elif d == 'L':
-            self.parentMaze.single_cell(child_cell)
+            self.parentMaze.head_cell(child_cell)
             time.sleep(delay)
-            self.parentMaze.backtracking_cell(child_cell)
+            
             self.parentMaze.push_left(cur_cell)
         elif d == 'R':
-            self.parentMaze.single_cell(child_cell)
+            self.parentMaze.head_cell(child_cell)
             time.sleep(delay)
-            self.parentMaze.backtracking_cell(child_cell)
+            
             self.parentMaze.push_right(cur_cell)
 
     def bfs(self, parent_maze=Maze(), start=(0, 0), goal=(0, 0), delay=0.01):
@@ -59,27 +59,23 @@ class BFS:
                 if self.parentMaze.maze_map[cur_cell][d] == 1:
                     if d == 'U':
                         child_cell = (cur_cell[0], cur_cell[1] - self.parentMaze.cell_width)
-                        self.parentMaze.single_cell(child_cell)
+                        self.parentMaze.head_cell(child_cell)
                         time.sleep(delay)
-                        self.parentMaze.backtracking_cell(child_cell)
                         self.parentMaze.push_up(cur_cell)
                     elif d == 'D':
                         child_cell = (cur_cell[0], cur_cell[1] + self.parentMaze.cell_width)
-                        self.parentMaze.single_cell(child_cell)
+                        self.parentMaze.head_cell(child_cell)
                         time.sleep(delay)
-                        self.parentMaze.backtracking_cell(child_cell)
                         self.parentMaze.push_down(cur_cell)
                     elif d == 'L':
                         child_cell = (cur_cell[0] - self.parentMaze.cell_width, cur_cell[1])
-                        self.parentMaze.single_cell(child_cell)
+                        self.parentMaze.head_cell(child_cell)
                         time.sleep(delay)
-                        self.parentMaze.backtracking_cell(child_cell)
                         self.parentMaze.push_left(cur_cell)
                     elif d == 'R':
                         child_cell = (cur_cell[0] + self.parentMaze.cell_width, cur_cell[1])
-                        self.parentMaze.single_cell(child_cell)
+                        self.parentMaze.head_cell(child_cell)
                         time.sleep(delay)
-                        self.parentMaze.backtracking_cell(child_cell)
                         self.parentMaze.push_right(cur_cell)
 
                     if child_cell in visited:
@@ -98,13 +94,11 @@ class BFS:
 
 if __name__ == '__main__':
     m = Maze((0, 0), 10, 10, 20)
-    m.CreateRawMaze()
-    m.DrawMaze()
+    m.create_maze()
 
     mouse = BFS()
     path = mouse.bfs(parent_maze=m, start=m.start, goal=m.end, delay=0.1)
-    # print(path2)
-    m.trade_path_point(path, m.start, m.end, delay=0.05)
+    m.show_path_coordinates(path, m.start, m.end, delay=0.05)
 
     # ##### pygame loop #######
     clock = pygame.time.Clock()
